@@ -1,23 +1,22 @@
-""" 01 - Documente o projeto
-    02 - Consiga fazer o pedido
-    03 - Dê sugestões de melhorias e faça além do pedido
-    """
 import time
-from openpyxl import load_workbook
-import openpyxl
-import pyautogui
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By 
-import PySimpleGUI as sg
+
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+
+# Definir o caminho para o diretório de download
+caminho_download = {"download.default_directory": "C:\\Users\\ArthurLN\\Downloads"}
+options.add_experimental_option("prefs", caminho_download)  # Correção do nome do argumento para "prefs"
 
 service = Service(executable_path="./chromedriver.exe")
-options = webdriver.ChromeOptions()
+
 driver = webdriver.Chrome(service=service, options=options)
 
 class My_RH:
 
-    def __init__(self, val = 1):
+    def __init__(self):
 
         driver.get("https://test.flowpro.com.br/")
 
@@ -33,17 +32,50 @@ class My_RH:
         time.sleep(2)
 
         ## Como eu não sei quantas demandas vão ter, sempre vou pedir para ele listar para mim antes...
+        ## E eu sei que o find_elements lista todos os elementos com esse endereço de baixo para cima
         num_demands = driver.find_elements(By.XPATH,"//tr[@class='listViewEntries']")
         print(len(num_demands))
 
         for i in range(len(num_demands)):
 
-
             demand = f"//tr[@id='HelpDesk_listView_row_{str(i+1)}']"
             print(demand)
             driver.find_element(By.XPATH,demand).click()
+            time.sleep(4)
+            element_documents = driver.find_element(By.XPATH,"//a[@displaylabel='Documentos']").click()
+            time.sleep(4)
+            
+            elements_list_download = driver.find_elements(By.XPATH,"//a[@name='downloadfile']")
 
-            element_documents = driver.find_element(By.XPATH,"//li[@data-label-key='Documents']").click()
+            print(len(elements_list_download))
+            
+
+            ## Utilizei essa lógica para obter o link de download de cada documento disponível e em seguida
+            ## Com o método get do chromedriver baixar pelo for
+             
+            for i in range(len(elements_list_download)):
+
+                download_arquivo = elements_list_download[i]
+                download_arquivo = download_arquivo.get_attribute('href')
+                
+                print(download_arquivo)
+
+                driver.get(download_arquivo)
+
+            driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
+            time.sleep(3)
+            
+
+
+
+
+
+
+
+
+
+
+                
 
 
 
