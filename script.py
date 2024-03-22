@@ -28,28 +28,26 @@ class My_RH:
         
         ## Achei mais fácil usar o get pois já estou logado e sei que a página de demandas é sempre a mesma, ou seja
         ## só redirecionar direto para página de demandas sem precisar envolver clicks e inclusive é mais rápido.
-
         driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
         time.sleep(2)
 
         ## Como eu não sei quantas demandas vão ter, sempre vou pedir para ele listar para mim antes...
         ## E eu sei que o find_elements lista todos os elementos com esse endereço de baixo para cima
-        num_demands = driver.find_elements(By.XPATH,"//tr[@class='listViewEntries']")
-        print(len(num_demands))
+        num_demandas = driver.find_elements(By.XPATH,"//tr[@class='listViewEntries']")
 
-        for i in range(len(num_demands)):
+        print(len(num_demandas))
 
+        ### Esse Script Acessa as Demandas em cada rodagem.
+        for i in range(len(num_demandas)):
 
-            ### Esse Script Acessa as Demandas
+            ## Através desse seletor estou conseguindo transitar por cada Demanda e salvar o seu nome corretamente
             demand = f"//tr[@id='HelpDesk_listView_row_{str(i+1)}']"
 
-            teste_demands = driver.find_element(By.XPATH,demand).text
-            teste_demands = teste_demands.split(" ")
-            teste_demands = teste_demands[0]
-            
-            print(teste_demands)
-            print(demand)
-            
+            ##Estou capturando a linha inteira de demanda e tratando o dado para capturar apenas o Número da Demanda
+            num_demanda = driver.find_element(By.XPATH,demand).text
+            num_demanda = num_demanda.split(" ")
+            num_demanda = num_demanda[0]
+
             driver.find_element(By.XPATH,demand).click()
             time.sleep(4)
             element_document = driver.find_element(By.XPATH,"//a[@displaylabel='Documentos']").click()
@@ -65,6 +63,7 @@ class My_RH:
             ## Com o método get do chromedriver baixar pelo for
             for i in range(len(elements_list_download)):
 
+
                 ## Esse bloco faz uma visita a cada página de Documento
                 caminho_pag_docs = driver.find_elements(By.XPATH,f'//td[contains(@class, "relatedListEntryValues")]/span/a')
                 caminho_pag_doc_url = caminho_pag_docs[i]
@@ -72,8 +71,8 @@ class My_RH:
 
                 driver.get(caminho_pag_doc_url)
 
-                responsável = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
-                print(responsável)
+                responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
+                print(responsavel)
 
                 ## Porque existe dois elementos com o mesmo nome, 
                 ## e eu sei que o segundo sempre será o num downloads.
@@ -92,16 +91,18 @@ class My_RH:
                 print(data_ultima_modificacao)
 
                 data_hora_atual = datetime.now()
-                data_hora_atual_str = data_hora_atual.strftime("%Y-%m-%d %H:%M:%S") 
+                data_hora_atual = data_hora_atual.strftime("%Y-%m-%d %H:%M:%S") 
+                print(data_hora_atual)
 
                 driver.back()
                 time.sleep(1)
                
-
-
-
+            ## Após ele capturar todas as informações da demanda atual, ele volta para a página de demandas e vai
+            ## Para a próxima.
             driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
             time.sleep(3)
+
+            
 
       
 
