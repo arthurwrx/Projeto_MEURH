@@ -6,16 +6,17 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import cx_Oracle
 from metodos_sql import *
+import pyautogui
 
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 
 # Definir o caminho para o diretório de download
-caminho_download = {"download.default_directory": "C:\\Users\\ArthurLN\\Downloads"}
+caminho_download = {"download.default_directory": "C:\\Users\\arthur\\Downloads"}
 options.add_experimental_option("prefs", caminho_download)  # Correção do nome do argumento para "prefs"
 
-service = Service(executable_path="./chromedriver.exe")
-driver = webdriver.Chrome(service=service, options=options)
+
+driver = webdriver.Chrome(options=options)
 
 class My_RH:
 
@@ -142,10 +143,4 @@ class My_RH:
         
         
 start = My_RH()
-
-
-
-
-
-
-
+print("Processo Finalizado!")
