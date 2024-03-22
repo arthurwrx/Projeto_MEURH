@@ -8,14 +8,13 @@ import cx_Oracle
 from metodos_sql import *
 
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
+options.add_argument('--headless')
 
 # Definir o caminho para o diretório de download
 caminho_download = {"download.default_directory": "C:\\Users\\ArthurLN\\Downloads"}
 options.add_experimental_option("prefs", caminho_download)  # Correção do nome do argumento para "prefs"
 
 service = Service(executable_path="./chromedriver.exe")
-
 driver = webdriver.Chrome(service=service, options=options)
 
 class My_RH:
