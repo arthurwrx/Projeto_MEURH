@@ -78,7 +78,7 @@ class My_RH:
 
 
                 ## Porque existe dois elementos com o mesmo nome, 
-                ## e eu sei que o segundo sempre será o num downloads.
+                ## e eu sei que o segundo elemento sempre será o numero downloads.
                 num_downloads = driver.find_element(By.XPATH,"(//span[@data-field-type='integer'])[2]").text
                 print(num_downloads)
 
@@ -88,23 +88,23 @@ class My_RH:
                 print(download_arquivo)
 
                 data_criacao = driver.find_element(By.XPATH,"//span[@data-field-type='datetime']").text
-                data_criacao = data_criacao.replace("PM",":00")
+                self.data_criacao = datetime.strptime(data_criacao, "%d-%m-%Y %I:%M %p")
                 print(self.data_criacao)
 
-                self.data_ultima_modificacao = driver.find_element(By.XPATH,"(//span[@data-field-type='datetime'])[2]").text
-                print(self.data_ultima_modificacao)
+                data_ultima_modificacao = driver.find_element(By.XPATH,"(//span[@data-field-type='datetime'])[2]").text
+                self.data_ultima_modificao = datetime.strptime(data_ultima_modificacao, "%d-%m-%Y %I:%M %p")
+                print(self.data_ultima_modificao)
 
-                data_hora_consulta = datetime.now()    
-                self.data_hora_atual = data_hora_consulta.strftime("%Y-%m-%d %H:%M:%S") 
+                self.data_hora_consulta = datetime.now()    
                 print(self.data_hora_consulta)
                 
                 self.insere_banco()
-     
+
                 driver.back()
                 time.sleep(1)
                
-            ## Após ele capturar todas as informações da demanda atual, ele volta para a página de demandas e 
-            ## vai para a próxima.
+            ## Após ele capturar todas as informações da demanda atual e enviar pro banco, 
+            ## ele volta para a página de demandas e  vai para a próxima.
             driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
             time.sleep(3)
     
@@ -131,23 +131,13 @@ class My_RH:
         print("Recebendo informações do banco...")
 
         linhas_da_tabela = ler_tabela_toda(cursor)
-        quantidade_de_linhas = len(linhas_da_tabela)
 
-        # print("...tabela lida.\n ----Quantidade atual de linhas",quantidade_de_linhas)
-        print()
-
-        data_hora_atual_teste = datetime.now()
-
-        # try:
-             
-        query = "INSERT INTO TB_DEMANDAS (NUMERO_DEMANDA, RESPONSAVEL, DATA_CRIACAO, DATA_ULTIMA_MODIFICACAO, DATA_HORA_CONSULTA) VALUES (:v,:v,:v,:v,:v)"
-        valores = (self.num_demanda, self.responsavel, self.data_criacao, self.data_hora_atual, self.data_ultima_modificacao)
+        query = "INSERT INTO TB_DEMANDAS (NUMERO_DEMANDA, RESPONSAVEL, DATA_CRIACAO,DATA_ULTIMA_MODIFICACAO,DATA_HORA_CONSULTA) VALUES (:v,:v,:v,:v,:v)"
+        valores = (self.num_demanda, self.responsavel, self.data_criacao,self.data_ultima_modificao,self.data_hora_consulta)
         cursor.execute(query,valores)
         conn.commit()
+        print("Dados enviados ao banco!")
         
-        # except:
-        #      print("Erro ao gravar os dados no Banco")
-
         
 start = My_RH()
 
