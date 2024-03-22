@@ -37,7 +37,7 @@ class My_RH:
         ## E eu sei que o find_elements lista todos os elementos com esse endereço de baixo para cima
         num_demandas = driver.find_elements(By.XPATH,"//tr[@class='listViewEntries']")
 
-        print(len(num_demandas))
+        print(len("Quantidade de demandas" + str(num_demandas)))
 
         ### Esse Script Acessa as Demandas em cada rodagem.
         for i in range(len(num_demandas)):
@@ -60,7 +60,7 @@ class My_RH:
             ##Escolhi esse elemento para listar o número de arquivos na página
             elements_list_download = driver.find_elements(By.XPATH,"//a[@name='downloadfile']")
 
-            print(len(elements_list_download))
+            print(len("Número de arquivos para baixar:" + str(elements_list_download)))
             
             ## Utilizei essa lógica para obter o link de download de cada documento disponível e em seguida
             ## Com o método get do chromedriver baixar pelo for
@@ -73,29 +73,32 @@ class My_RH:
 
                 driver.get(caminho_pag_doc_url)
 
-                self.responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
+                print("Número da demanda: " + self.num_demanda)
 
+                self.responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
+                print("Responsável " + self.responsavel)
 
                 ## Porque existe dois elementos com o mesmo nome, 
                 ## e eu sei que o segundo elemento sempre será o numero downloads.
                 num_downloads = driver.find_element(By.XPATH,"(//span[@data-field-type='integer'])[2]").text
-                print(num_downloads)
+                print("Quantidade de downloads desse arquivo: " + num_downloads)
 
+                ## Nesta Linha peço para obter a url de download do arquivo.
                 download_arquivo = driver.find_element(By.XPATH,'//a[@title="Arquivo Download"]')
                 download_arquivo = download_arquivo.get_attribute('href')
                 download_arquivo = driver.get(download_arquivo)
-                print(download_arquivo)
+
 
                 data_criacao = driver.find_element(By.XPATH,"//span[@data-field-type='datetime']").text
                 self.data_criacao = datetime.strptime(data_criacao, "%d-%m-%Y %I:%M %p")
-                print(self.data_criacao)
+                print("Data de criação: " + str(self.data_criacao))
 
                 data_ultima_modificacao = driver.find_element(By.XPATH,"(//span[@data-field-type='datetime'])[2]").text
                 self.data_ultima_modificao = datetime.strptime(data_ultima_modificacao, "%d-%m-%Y %I:%M %p")
-                print(self.data_ultima_modificao)
+                print("Data de modificação: " + (str(self.data_ultima_modificao)))
 
                 self.data_hora_consulta = datetime.now()    
-                print(self.data_hora_consulta)
+                print("Data de consulta:" + str(self.data_hora_consulta))
                 
                 self.insere_banco()
 
