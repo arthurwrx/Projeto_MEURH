@@ -6,14 +6,12 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import cx_Oracle
 from metodos_sql import *
-import sys
-import subprocess
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 
 ## Configurações do Chrome
 # Definir o caminho para o diretório de download
-caminho_download = {"download.default_directory": "C:\\Users\\arthurwrx\\Downloads"}
+caminho_download = {"download.default_directory": "C:\\Users\\arthur.lima\\Downloads"}
 options.add_experimental_option("prefs", caminho_download)
 
 
@@ -39,11 +37,9 @@ class My_RH:
         ## E eu sei que o find_elements lista todos os elementos com esse endereço de baixo para cima
         num_demandas = driver.find_elements(By.XPATH,"//tr[@class='listViewEntries']")
 
-        print(len("Quantidade de demandas" + str(num_demandas)))
 
         ### Esse Script Acessa as Demandas em cada rodagem.
         for i in range(len(num_demandas)):
-
 
             ##Estou capturando a linha inteira de demanda e tratando o dado para capturar apenas o Número da Demanda
             demand = f"//tr[@id='HelpDesk_listView_row_{str(i+1)}']"
@@ -61,11 +57,10 @@ class My_RH:
             
             ##Escolhi esse elemento para listar o número de arquivos na página
             elements_list_download = driver.find_elements(By.XPATH,"//a[@name='downloadfile']")
-
-            print(len("Número de arquivos para baixar:" + str(elements_list_download)))
             
             ## Utilizei essa lógica para obter o link de download de cada documento disponível e em seguida
             ## Com o método get do chromedriver baixar pelo for
+
             for i in range(len(elements_list_download)):
 
                 ## Esse bloco faz uma visita a cada página de Documento, escolhi capturar o href de cada linha e ir visitando
@@ -74,7 +69,7 @@ class My_RH:
                 caminho_pag_doc_url = caminho_pag_doc_url.get_attribute('href')
 
                 driver.get(caminho_pag_doc_url)
-
+                print("=======================================================")
                 print("Número da demanda: " + self.num_demanda)
 
                 self.responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
@@ -102,6 +97,7 @@ class My_RH:
 
                 self.data_hora_consulta = datetime.now()    
                 print("Data de consulta:" + str(self.data_hora_consulta))
+                print("=======================================================")
                 
                 self.insere_banco()
 
@@ -139,7 +135,3 @@ class My_RH:
         
 start = My_RH()
 print("Processo Finalizado!")
-
-# Fecha a janela do terminal
-if sys.platform.startswith('win'):
-    subprocess.Popen('taskkill /F /IM WindowsTerminal.exe', shell=True)
