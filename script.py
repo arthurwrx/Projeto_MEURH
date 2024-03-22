@@ -1,12 +1,10 @@
 import time
+import datetime
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By 
 from datetime import datetime
 import cx_Oracle
-import json
-import requests
-from datetime import datetime as dt
 from metodos_sql import *
 
 options = webdriver.ChromeOptions()
@@ -53,6 +51,8 @@ class My_RH:
             num_demanda = num_demanda.split(" ")
             num_demanda = num_demanda[0]
 
+            self.num_demanda = num_demanda
+
             driver.find_element(By.XPATH,demand).click()
             time.sleep(4)
             element_document = driver.find_element(By.XPATH,"//a[@displaylabel='Documentos']").click()
@@ -74,8 +74,8 @@ class My_RH:
 
                 driver.get(caminho_pag_doc_url)
 
-                responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
-                print(responsavel)
+                self.responsavel = driver.find_element(By.XPATH,"//span[@data-field-type='owner']").text
+
 
                 ## Porque existe dois elementos com o mesmo nome, 
                 ## e eu sei que o segundo sempre será o num downloads.
@@ -88,15 +88,18 @@ class My_RH:
                 print(download_arquivo)
 
                 data_criacao = driver.find_element(By.XPATH,"//span[@data-field-type='datetime']").text
-                print(data_criacao)
+                data_criacao = data_criacao.replace("PM",":00")
+                print(self.data_criacao)
 
-                data_ultima_modificacao = driver.find_element(By.XPATH,"(//span[@data-field-type='datetime'])[2]").text
-                print(data_ultima_modificacao)
+                self.data_ultima_modificacao = driver.find_element(By.XPATH,"(//span[@data-field-type='datetime'])[2]").text
+                print(self.data_ultima_modificacao)
 
-                data_hora_atual = datetime.now()
-                data_hora_atual = data_hora_atual.strftime("%Y-%m-%d %H:%M:%S") 
-                print(data_hora_atual)
-
+                data_hora_consulta = datetime.now()    
+                self.data_hora_atual = data_hora_consulta.strftime("%Y-%m-%d %H:%M:%S") 
+                print(self.data_hora_consulta)
+                
+                self.insere_banco()
+     
                 driver.back()
                 time.sleep(1)
                
@@ -105,9 +108,14 @@ class My_RH:
             driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
             time.sleep(3)
     
-    def insere_banco():
+    def insere_banco(self):
         
-        cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_21_13")
+        try:
+            cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_21_13")
+        
+        except:
+            pass
+
 
         DICIO_ERROS={
             400: "Error 400 - Bad Request. \nYou can get 400 error if either some mandatory parameters in the request are missing or some of request parameters have incorrect format or values out of allowed range. \nList of all parameters names that are missing or incorrect will be returned in `parameters`attribute of the `ErrorResponse` object.",
@@ -119,17 +127,30 @@ class My_RH:
         dsn = cria_dsn(host="oracle.fiap.com.br", port = 1521, sid= "ORCL")
         conn = conecta_banco("rm551054", "271297", dsn)
         cursor = conn.cursor()
-        print()
-        #LENDO O BANCO
+
         print("Recebendo informações do banco...")
+
         linhas_da_tabela = ler_tabela_toda(cursor)
         quantidade_de_linhas = len(linhas_da_tabela)
-        print("...tabela lida.\n ----Quantidade atual de linhas",quantidade_de_linhas)
+
+        # print("...tabela lida.\n ----Quantidade atual de linhas",quantidade_de_linhas)
         print()
 
+        data_hora_atual_teste = datetime.now()
 
+        # try:
+             
+        query = "INSERT INTO TB_DEMANDAS (NUMERO_DEMANDA, RESPONSAVEL, DATA_CRIACAO, DATA_ULTIMA_MODIFICACAO, DATA_HORA_CONSULTA) VALUES (:v,:v,:v,:v,:v)"
+        valores = (self.num_demanda, self.responsavel, self.data_criacao, self.data_hora_atual, self.data_ultima_modificacao)
+        cursor.execute(query,valores)
+        conn.commit()
+        
+        # except:
+        #      print("Erro ao gravar os dados no Banco")
+
+        
 start = My_RH()
-start.insere_banco()
+
 
 
 
