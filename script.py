@@ -3,6 +3,11 @@ from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By 
 from datetime import datetime
+import cx_Oracle
+import json
+import requests
+from datetime import datetime as dt
+from metodos_sql import *
 
 options = webdriver.ChromeOptions()
 # options.add_argument('--headless')
@@ -58,11 +63,9 @@ class My_RH:
 
             print(len(elements_list_download))
             
-            
             ## Utilizei essa lógica para obter o link de download de cada documento disponível e em seguida
             ## Com o método get do chromedriver baixar pelo for
             for i in range(len(elements_list_download)):
-
 
                 ## Esse bloco faz uma visita a cada página de Documento
                 caminho_pag_docs = driver.find_elements(By.XPATH,f'//td[contains(@class, "relatedListEntryValues")]/span/a')
@@ -97,45 +100,37 @@ class My_RH:
                 driver.back()
                 time.sleep(1)
                
-            ## Após ele capturar todas as informações da demanda atual, ele volta para a página de demandas e vai
-            ## Para a próxima.
+            ## Após ele capturar todas as informações da demanda atual, ele volta para a página de demandas e 
+            ## vai para a próxima.
             driver.get("https://test.flowpro.com.br/index.php?module=HelpDesk&view=List&app=SUPPORT")
             time.sleep(3)
+    
+    def insere_banco():
+        
+        cx_Oracle.init_oracle_client(lib_dir=r"C:\instantclient_21_13")
 
-            
+        DICIO_ERROS={
+            400: "Error 400 - Bad Request. \nYou can get 400 error if either some mandatory parameters in the request are missing or some of request parameters have incorrect format or values out of allowed range. \nList of all parameters names that are missing or incorrect will be returned in `parameters`attribute of the `ErrorResponse` object.",
+            401: "Error 401 - Unauthorized. ",
+            404: "Error 404 - Not Found. ",
+            429: "Error 429 - Too Many Requests"
+        }
 
-      
-
-            
-
-
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        dsn = cria_dsn(host="oracle.fiap.com.br", port = 1521, sid= "ORCL")
+        conn = conecta_banco("rm551054", "271297", dsn)
+        cursor = conn.cursor()
+        print()
+        #LENDO O BANCO
+        print("Recebendo informações do banco...")
+        linhas_da_tabela = ler_tabela_toda(cursor)
+        quantidade_de_linhas = len(linhas_da_tabela)
+        print("...tabela lida.\n ----Quantidade atual de linhas",quantidade_de_linhas)
+        print()
 
 
 start = My_RH()
+start.insere_banco()
+
 
 
 
